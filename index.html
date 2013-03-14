@@ -68,7 +68,6 @@
             alert('Uh, something went wrong. How\'s that for error handling?');
           },
           success: function(response) {
-            $('#start-button').prop('disabled', true);
             $('#game-id').html(response.game_id);
             $('#message').html(response.message);
           }
@@ -96,17 +95,15 @@
       };
 
       $(document).ready(function() {
-        $('#start-button').click(function() {
-
+        $('#start-button').click(function(e) {
+          $(e.target).text('Game On!').prop('disabled', true);
           doInitGameRequest();
-
           $('#board').on('click', 'td', function(e) {
             targetMove = e.target.innerText.toLowerCase();
             if(targetMove === 'x' || targetMove === 'o')  return;
             $(e.target).text('X').css('color', 'blue');
             doTakeTurnRequest($('#game-id').html(), targetMove);
           });
-
         });
       });
     </script>
