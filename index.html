@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Tic Tac Toe!</title>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <style type='text/css'>
+      body {
+        padding-top: 15px;
+      }
+
+      #board 
+      {
+        width: 600px;
+      }
+
+      #board td
+      {
+        width: 200px;
+        height: 200px;
+        border: 2px #dfdfdf dashed;
+        font-size: 80px;
+        color: #dfdfdf;
+        text-align: center;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="span3">
+          <button href="#" id="start-button" class="btn btn-primary btn-large">Start Game!</button>
+        </div>
+        <div class="span6">
+          <table id="board">
+            <tr>
+              <td id='tl'>TL</td>
+              <td id='tc'>TC</td>
+              <td id='tr'>TR</td>
+            </tr>
+            <tr>
+              <td id='cl'>CL</td>
+              <td id='cc'>CC</td>
+              <td id='cr'>CR</td>
+            </tr>
+            <tr>
+              <td id='bl'>BL</td>
+              <td id='bc'>BC</td>
+              <td id='br'>BR</td>
+            </tr>
+          </table>
+        </div>
+        <div class="span3">
+            <div id="message" class="alert alert-info">Click 'Start Game'!</div>
+            <div class="alert alert-warning"> Game id: <span id="game-id">[ Game ID ]</span></div>
+        </div>
+      </div>
+    </div>
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <script>
+      var doInitGameRequest = function() {
+        $.ajax({
+          type: 'GET',
+          url: '/init-game',
+          dataType: 'json',
+          error: function () {
+            alert('Uh, something went wrong. How\'s that for error handling?');
+          },
+          success: function(response) {
+            $('#start-button').prop('disabled', true);
+            $('#game-id').html(response.game_id);
+            $('#message').html(response.message);
+          }
+        });
+      }
+
+      var doTakeTurnRequest = function(gameId, move) {
+        $.ajax({
+          type: 'PUT',
+          url: '/take-turn',
+          dataType: 'json',
+          data: {
+            'game_id': gameId,
+            'move': move,
+            'mark': 'X'
+          },
+          error: function () {
+            alert('Some stuff is probably broken.');
+          },
+          success: function(response) {
+            $('#' + response.opp_move).text('O').css('color', 'red');
+            $('#message').html(response.message);
+          }
+        });
+      };
+
+      $(document).ready(function() {
+        $('#start-button').click(function() {
+
+          doInitGameRequest();
+
+          $('#board').on('click', 'td', function(e) {
+            targetMove = e.target.innerText.toLowerCase();
+            if(targetMove === 'x' || targetMove === 'o')  return;
+            $(e.target).text('X').css('color', 'blue');
+            doTakeTurnRequest($('#game-id').html(), targetMove);
+          });
+
+        });
+      });
+    </script>
+  </body>
+</html>
